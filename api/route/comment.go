@@ -14,6 +14,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const imagesFolder = "/root/data/images"
+
 type CommentRoute struct {
 	DB *gorm.DB
 }
@@ -52,14 +54,14 @@ func (route *CommentRoute) add(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = os.MkdirAll("/root/images", 0755)
+	err = os.MkdirAll(imagesFolder, 0755)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[CommentRoute::add] Create dir error: %v\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	comment.ImgPath = "/root/images/" + strconv.Itoa(comment.ID) + filepath.Ext(header.Filename)
+	comment.ImgPath = filepath.Join(imagesFolder, strconv.Itoa(comment.ID), filepath.Ext(header.Filename))
 	out, err := os.Create(comment.ImgPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[CommentRoute::add] Out file error: %v\n", err)

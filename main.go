@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	api.Register(":80", storage.NewDB())
+	api.Register(":80", storage.NewDB("/root/data/storage.db"))
 }

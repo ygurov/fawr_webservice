@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewDB() *gorm.DB {
-	handle, err := gorm.Open(sqlite.Open("test.db"))
+func NewDB(path string) *gorm.DB {
+	handle, err := gorm.Open(sqlite.Open(path))
 	if err != nil {
 		panic(err)
 	}
