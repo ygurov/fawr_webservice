@@ -10,8 +10,11 @@ import (
 
 	"github.com/fawrwebservice/model"
 	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/webhook"
 	"gorm.io/gorm"
 )
+
+var stripeWebhookKey = os.Getenv("STRIPE_WEBHOOK_KEY")
 
 type StripeWebhook struct {
 	DB *gorm.DB
@@ -47,10 +50,10 @@ func (route *StripeWebhook) stripeWebhookHandle(w http.ResponseWriter, req *http
 		return
 	}
 
-	event := stripe.Event{}
-
-	if err := json.Unmarshal(payload, &event); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse webhook body json: %v\n", err.Error())
+	event, err := webhook.ConstructEventWithOptions(payload, req.Header.Get("Stripe-Signature"), stripeWebhookKey,
+		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error verifying webhook signature: %v\n", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

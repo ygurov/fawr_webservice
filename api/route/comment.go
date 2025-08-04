@@ -30,7 +30,7 @@ func (route *CommentRoute) commentHandler(w http.ResponseWriter, req *http.Reque
 	case http.MethodGet:
 		route.get(w, req)
 	case http.MethodPost:
-		route.add(w, req)
+		withSecret(route.add)(w, req)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -61,7 +61,7 @@ func (route *CommentRoute) add(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	comment.ImgPath = filepath.Join(imagesFolder, strconv.Itoa(comment.ID), filepath.Ext(header.Filename))
+	comment.ImgPath = filepath.Join(imagesFolder, strconv.Itoa(comment.ID)+filepath.Ext(header.Filename))
 	out, err := os.Create(comment.ImgPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[CommentRoute::add] Out file error: %v\n", err)

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -31,5 +32,11 @@ func Register(addr string, db *gorm.DB) {
 		static.Register(mux)
 	}
 
-	http.ListenAndServe(addr, corsMiddleware(mux))
+	certPath := os.Getenv("SSL_CERT_PATH")
+	keyPath := os.Getenv("SSL_KEY_PATH")
+
+	err := http.ListenAndServeTLS(":443", certPath, keyPath, mux)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error while starting webserver: %v\n", err)
+	}
 }

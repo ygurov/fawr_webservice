@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 type StaticRoute struct {
@@ -12,13 +11,11 @@ type StaticRoute struct {
 
 func (route *StaticRoute) Register(parent *http.ServeMux) {
 	parent.HandleFunc("/", route.root)
-	parent.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("public"))))
+	parent.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("/root/public"))))
 }
 
 func (route *StaticRoute) root(w http.ResponseWriter, req *http.Request) {
-	path := filepath.Join("public/index.html")
-
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile("/root/public/index.html")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[StaticRoute::root] File read error: %v\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
